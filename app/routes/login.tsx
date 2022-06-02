@@ -1,14 +1,21 @@
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useState } from "react";
+import { useActionData } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
 import { FormField } from "~/components/form-field";
 import { Layout } from "~/components/layout";
-import { login, register } from "~/utils/auth.server";
+import { getUser, login, register } from "~/utils/auth.server";
 import {
   validateEmail,
   validateName,
   validatePassword,
 } from "~/utils/validators.server";
+import { XCircleIcon } from "@heroicons/react/solid";
+
+export const loader: LoaderFunction = async ({ request }) => {
+  return (await getUser(request)) ? redirect("/") : null;
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
@@ -72,13 +79,41 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const Login = () => {
+  const actionData = useActionData();
+  const firstLoad = useRef(true);
+  const [errors, setErrors] = useState(actionData?.errors || {});
+  const [formError, setFormError] = useState(actionData?.error || "");
   const [action, setAction] = useState("login");
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
+    email: actionData?.fields?.email || "",
+    password: actionData?.fields?.password || "",
+    firstName: actionData?.fields?.firstName || "",
+    lastName: actionData?.fields?.lastName || "",
   });
+
+  useEffect(() => {
+    if (!firstLoad.current) {
+      const newState = {
+        email: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+      };
+      setErrors(newState);
+      setFormError("");
+      setFormData(newState);
+    }
+  }, [action]);
+
+  useEffect(() => {
+    if (!firstLoad.current) {
+      setFormError("");
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    firstLoad.current = false;
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -109,6 +144,32 @@ const Login = () => {
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <form className="space-y-6" method="POST">
+              {Object.values(errors).filter((v) => v !== "").length !== 0 && (
+                <div className="rounded-md bg-red-50 p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <XCircleIcon
+                        className="h-5 w-5 text-red-400"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-red-800">
+                        There were {Object.keys(errors).length} errors with your
+                        submission
+                      </h3>
+                      <div className="mt-2 text-sm text-red-700">
+                        <ul role="list" className="list-disc pl-5 space-y-1">
+                          {Object.values(errors).map((error) => (
+                            <li key={error as string}>{error as string}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <FormField
                   htmlFor="email"
@@ -116,6 +177,7 @@ const Login = () => {
                   value={formData.email}
                   required
                   onChange={(e) => handleInputChange(e, "email")}
+                  error={errors?.email}
                 />
               </div>
 
@@ -126,6 +188,7 @@ const Login = () => {
                   required
                   value={formData.password}
                   onChange={(e) => handleInputChange(e, "password")}
+                  error={errors?.password}
                 />
               </div>
 
@@ -137,6 +200,7 @@ const Login = () => {
                       label="First Name"
                       onChange={(e) => handleInputChange(e, "firstName")}
                       value={formData.firstName}
+                      error={errors?.firstName}
                     />
                   </div>
 
@@ -146,6 +210,7 @@ const Login = () => {
                       label="Last Name"
                       onChange={(e) => handleInputChange(e, "lastName")}
                       value={formData.lastName}
+                      error={errors?.lastName}
                     />
                   </div>
                 </>
