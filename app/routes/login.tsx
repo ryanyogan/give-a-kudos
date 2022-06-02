@@ -1,14 +1,78 @@
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useState } from "react";
 import { FormField } from "~/components/form-field";
 import { Layout } from "~/components/layout";
+import { login, register } from "~/utils/auth.server";
+import {
+  validateEmail,
+  validateName,
+  validatePassword,
+} from "~/utils/validators.server";
 
-const actions = {
-  login: "login",
-  register: "register",
+export const action: ActionFunction = async ({ request }) => {
+  const form = await request.formData();
+  const action = form.get("_action");
+  const email = form.get("email");
+  const password = form.get("password");
+  let firstName = form.get("firstName");
+  let lastName = form.get("lastName");
+
+  if (
+    typeof action !== "string" ||
+    typeof email !== "string" ||
+    typeof password !== "string"
+  ) {
+    return json({ error: `Invalid Form Data`, form: action }, { status: 400 });
+  }
+
+  if (
+    action === "register" &&
+    (typeof firstName !== "string" || typeof lastName !== "string")
+  ) {
+    return json({ error: `Invalid Form Data`, form: action }, { status: 400 });
+  }
+
+  const errors = {
+    email: validateEmail(email),
+    password: validatePassword(password),
+    ...(action === "register"
+      ? {
+          firstName: validateName((firstName as string) || ""),
+          lastName: validateName((lastName as string) || ""),
+        }
+      : {}),
+  };
+
+  if (Object.values(errors).some(Boolean)) {
+    return json(
+      {
+        errors,
+        fields: { email, password, firstName, lastName },
+        form: action,
+      },
+      { status: 400 }
+    );
+  }
+
+  switch (action) {
+    case "login": {
+      return await login({ email, password });
+    }
+
+    case "register": {
+      firstName = firstName as string;
+      lastName = lastName as string;
+      return await register({ email, password, firstName, lastName });
+    }
+
+    default:
+      return json({ error: "Invalid Form Data" }, { status: 400 });
+  }
 };
 
 const Login = () => {
-  const [action, setAction] = useState(actions.login);
+  const [action, setAction] = useState("login");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -36,7 +100,7 @@ const Login = () => {
             Welcome to Kudos!
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {action === actions.login
+            {action === "login"
               ? "Log In To Give Some Praise"
               : "Sign Up To Give Some Praise"}
           </p>
@@ -65,7 +129,7 @@ const Login = () => {
                 />
               </div>
 
-              {action === actions.register && (
+              {action === "register" && (
                 <>
                   <div>
                     <FormField
@@ -94,21 +158,17 @@ const Login = () => {
                   value={action}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  {action === actions.login ? "Sign in" : "Register"}
+                  {action === "login" ? "Sign in" : "Register"}
                 </button>
               </div>
             </form>
           </div>
         </div>
         <button
-          onClick={(e) =>
-            setAction(
-              action === actions.login ? actions.register : actions.login
-            )
-          }
+          onClick={(e) => setAction(action === "login" ? "register" : "login")}
           className="mt-2 text-center text-xs font-bold text-blue-600 transition duration-300 ease-in-out underline cursor-pointer hover:text-blue-400"
         >
-          {action === actions.login ? (
+          {action === "login" ? (
             <span>or register</span>
           ) : (
             <span>or login</span>
@@ -119,4 +179,4 @@ const Login = () => {
   );
 };
 
-export { Login as default };
+export default Login;
