@@ -61,13 +61,15 @@ export const Kudo = ({
           <a href={action.href} className="focus:outline-none">
             {/* Extend touch target to entire panel */}
             <span className="absolute inset-0" aria-hidden="true" />
-            Dear, {recipient.profile.firstName}
+            {recipient.profile.firstName},
           </a>
         </h3>
         <p className="mt-2 text-sm text-gray-500 whitespace-pre-wrap break-all">
           {kudo.message}
         </p>
-        <p className="mt-8 text-xs text-gray-400 font-semibold">#you-rock</p>
+        <p className="mt-8 text-xs text-gray-400 font-semibold">
+          #kudos-to-you
+        </p>
       </div>
       <span
         className="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400"

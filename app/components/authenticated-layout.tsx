@@ -14,6 +14,7 @@ import {
 import { SearchIcon } from "@heroicons/react/solid";
 import { UserPanel } from "./user-panel";
 import type { User } from "@prisma/client";
+import { Link } from "react-router-dom";
 
 const navigation = [
   { name: "Dashboard", to: "#", icon: HomeIcon, current: true },
@@ -107,7 +108,7 @@ export const AuthenticatedLayout: React.FC<props> = ({ children, users }) => {
                     alt="Workflow"
                   />
                   <h1 className="text-gray-800 font-bold text-2xl ml-2">
-                    Team Kudos
+                    <Link to="/home">Team Kudos</Link>
                   </h1>
                 </div>
                 <div className="mt-5 flex-1 h-0 overflow-y-auto">
@@ -161,7 +162,7 @@ export const AuthenticatedLayout: React.FC<props> = ({ children, users }) => {
               alt="Workflow"
             />
             <h1 className="text-gray-800 font-bold text-2xl ml-2">
-              Team Kudos
+              <Link to="/home">Team Kudos</Link>
             </h1>
           </div>
           <div className="mt-5 flex-grow flex flex-col">

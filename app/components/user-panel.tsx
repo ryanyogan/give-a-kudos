@@ -49,8 +49,6 @@ export const people = [
 ];
 
 export const UserPanel = ({ open = false, setOpen, users }: UserPanelProps) => {
-  const navigate = useNavigate();
-
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -122,7 +120,7 @@ export const UserPanel = ({ open = false, setOpen, users }: UserPanelProps) => {
                                     <div>
                                       <Link
                                         prefetch="intent"
-                                        to={`kudo/${user.id}`}
+                                        to={`/user/${user.id}`}
                                         className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
                                         onClick={() => setOpen(false)}
                                       >

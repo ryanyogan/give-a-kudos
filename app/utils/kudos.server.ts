@@ -46,7 +46,7 @@ export const getFilteredKudos = async (
       ...sortFilter,
     },
     where: {
-      // recipientId: userId,
+      recipientId: userId,
       ...whereFilter,
     },
   });
