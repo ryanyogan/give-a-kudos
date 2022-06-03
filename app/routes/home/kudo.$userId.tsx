@@ -1,15 +1,16 @@
-import type { LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { getUserById } from "~/utils/user.server";
 import { useState } from "react";
-import { getUser } from "~/utils/auth.server";
-import type { KudoStyle } from "@prisma/client";
+import { getUser, requireUserId } from "~/utils/auth.server";
+import type { Color, Emoji, KudoStyle } from "@prisma/client";
 import { MailIcon, PhoneIcon } from "@heroicons/react/solid";
 import { SelectField } from "~/components/select-field";
 import { backgroundColorMap, colorMap, emojiMap } from "~/utils/constants";
 import { Kudo } from "~/components/kudo";
+import { createKudo } from "~/utils/kudos.server";
 
 const profile = {
   name: "Ricardo Cooper",
@@ -28,6 +29,40 @@ const profile = {
     ["Salary", "$145,000"],
     ["Birthday", "June 8, 1990"],
   ],
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const userId = await requireUserId(request);
+  const form = await request.formData();
+  const message = form.get("message");
+  const backgroundColor = form.get("backgroundColor");
+  const textColor = form.get("textColor");
+  const emoji = form.get("emoji");
+  const recipientId = form.get("recipientId");
+
+  if (
+    typeof message !== "string" ||
+    typeof recipientId !== "string" ||
+    typeof backgroundColor !== "string" ||
+    typeof textColor !== "string" ||
+    typeof emoji !== "string"
+  ) {
+    return json({ error: `Invalid Form Data` }, { status: 400 });
+  }
+  if (!message.length) {
+    return json({ error: `Please provide a message.` }, { status: 400 });
+  }
+  if (!recipientId.length) {
+    return json({ error: `No recipient found...` }, { status: 400 });
+  }
+
+  await createKudo(message, userId, recipientId, {
+    backgroundColor: backgroundColor as Color,
+    textColor: textColor as Color,
+    emoji: emoji as Emoji,
+  });
+
+  return redirect("/home");
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -170,7 +205,8 @@ const KudoModal = () => {
       </div>
 
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <form action="#" className="relative">
+        <form method="post" className="relative">
+          <input type="hidden" value={recipient.id} name="recipientId" />
           <div className="border border-gray-300 rounded-lg shadow-sm overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
             <label htmlFor="title" className="sr-only">
               Title
@@ -178,17 +214,17 @@ const KudoModal = () => {
             <h1 className="block w-full border-0 bg-white ml-1 pt-2.5 p-2 text-lg font-medium placeholder-gray-500 focus:ring-0">
               Give Kudos!
             </h1>
-            <label htmlFor="description" className="sr-only">
-              Description
+            <label htmlFor="message" className="sr-only">
+              Message
             </label>
             <textarea
               rows={4}
-              name="description"
-              id="description"
+              name="message"
+              id="message"
               onChange={(e) => handleChange(e, "message")}
               className="block w-full border-0 py-0 resize-none placeholder-gray-500 focus:ring-0 sm:text-sm"
               placeholder={`Write something nice about ${recipient.profile.firstName}...`}
-              defaultValue={""}
+              value={formData.message}
             />
 
             {/* Spacer element to match the height of the toolbar */}
