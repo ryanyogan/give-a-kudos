@@ -27,19 +27,20 @@ export const Kudo = ({
   profile,
   kudo,
   recipient,
+  kudoIdx,
 }: {
   profile: Profile;
   recipient: User;
   kudo: Partial<IKudo>;
+  kudoIdx: number;
 }) => {
-  const actionIdx = 0;
   return (
     <div
       className={classNames(
-        actionIdx === 0 ? "rounded-tl-lg rounded-tr-lg sm:rounded-tr-none" : "",
-        actionIdx === 1 ? "sm:rounded-tr-lg" : "",
-        actionIdx === action.length - 2 ? "sm:rounded-bl-lg" : "",
-        actionIdx === action.length - 1
+        kudoIdx === 0 ? "rounded-tl-lg rounded-tr-lg sm:rounded-tr-none" : "",
+        kudoIdx === 1 ? "sm:rounded-tr-lg" : "",
+        kudoIdx === action.length - 2 ? "sm:rounded-bl-lg" : "",
+        kudoIdx === action.length - 1
           ? "rounded-bl-lg rounded-br-lg sm:rounded-bl-none"
           : "",
         "relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500"

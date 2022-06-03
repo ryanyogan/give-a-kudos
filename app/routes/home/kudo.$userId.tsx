@@ -309,6 +309,20 @@ const KudoModal = () => {
         </div>
 
         <Kudo profile={user.profile} recipient={recipient} kudo={formData} />
+        <div className="relative my-5">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
+            <div className="w-full border-t border-gray-300" />
+          </div>
+
+          <div className="relative flex justify-center">
+            <span className="bg-gray-50 px-2 text-gray-500 font-bold text-sm">
+              <span>Recent Kudos</span>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
