@@ -255,21 +255,21 @@ export const AuthenticatedLayout: React.FC<props> = ({ children, users }) => {
                   leaveTo="transform opacity-0 scale-95"
                 >
                   <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    {userNavigation.map((item) => (
-                      <Menu.Item key={item.name}>
+                    <form action="/logout" method="post">
+                      <Menu.Item>
                         {({ active }) => (
-                          <a
-                            href={item.href}
+                          <button
+                            type="submit"
                             className={classNames(
                               active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
+                              " px-4 py-2 text-sm text-gray-700 w-full flex justify-start items-start"
                             )}
                           >
-                            {item.name}
-                          </a>
+                            Sign out
+                          </button>
                         )}
                       </Menu.Item>
-                    ))}
+                    </form>
                   </Menu.Items>
                 </Transition>
               </Menu>
@@ -277,22 +277,7 @@ export const AuthenticatedLayout: React.FC<props> = ({ children, users }) => {
           </div>
         </div>
 
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Dashboard
-              </h1>
-            </div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {/* Replace with your content */}
-              <div className="py-4">
-                <div className="border-4 border-dashed border-gray-200 rounded-lg h-96" />
-              </div>
-              {/* /End replace */}
-            </div>
-          </div>
-        </main>
+        <main className="flex-1">{children}</main>
       </div>
       <UserPanel
         open={userPanelOpen}
