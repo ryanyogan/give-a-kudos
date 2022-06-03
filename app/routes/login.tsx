@@ -24,6 +24,7 @@ export const action: ActionFunction = async ({ request }) => {
   const password = form.get("password");
   let firstName = form.get("firstName");
   let lastName = form.get("lastName");
+  let handle = form.get("handle");
 
   if (
     typeof action !== "string" ||
@@ -70,7 +71,8 @@ export const action: ActionFunction = async ({ request }) => {
     case "register": {
       firstName = firstName as string;
       lastName = lastName as string;
-      return await register({ email, password, firstName, lastName });
+      handle = handle as string;
+      return await register({ email, password, firstName, lastName, handle });
     }
 
     default:
@@ -89,6 +91,7 @@ const Login = () => {
     password: actionData?.fields?.password || "",
     firstName: actionData?.fields?.firstName || "",
     lastName: actionData?.fields?.lastName || "",
+    handle: actionData?.fields?.handle || "",
   });
 
   useEffect(() => {
@@ -98,6 +101,7 @@ const Login = () => {
         password: "",
         firstName: "",
         lastName: "",
+        handle: "",
       };
       setErrors(newState);
       setFormError("");
@@ -211,6 +215,16 @@ const Login = () => {
                       onChange={(e) => handleInputChange(e, "lastName")}
                       value={formData.lastName}
                       error={errors?.lastName}
+                    />
+                  </div>
+
+                  <div>
+                    <FormField
+                      htmlFor="handle"
+                      label="Twitter/Github Handle"
+                      onChange={(e) => handleInputChange(e, "handle")}
+                      value={formData.handle}
+                      error={errors?.handle}
                     />
                   </div>
                 </>

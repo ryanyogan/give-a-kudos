@@ -13,6 +13,7 @@ datasource db {
 type Profile {
   firstName String
   lastName  String
+  handle    String
 }
 
 model User {
